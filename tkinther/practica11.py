@@ -43,6 +43,7 @@ botonVerde= Button(seccion3, text="Boton verde", bg="green", command=agregarBoto
 botonVerde.configure(height=2, width=10)
 botonVerde.pack()
 
+
 #4. Declaramos funcion para mensajes
 
 
