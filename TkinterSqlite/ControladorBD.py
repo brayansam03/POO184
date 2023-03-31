@@ -2,54 +2,75 @@ from tkinter import messagebox
 import sqlite3
 import bcrypt
 
-class controladorBD: 
+class controladorBD:
+    def _init_(self):
+        pass
     
-    def __init__(self):
-        pass 
-    
-    def conexionBD(self):
-          
-        try: 
-            conexion= sqlite3.connect()
+    def ConexionBD(self):
+        try:
+            conexion= sqlite3.connect("C:/Users/lajp2/Documents/GitHub/Practica-9/thinter SQL/DB.db")
             print("Conectado BD")
             return conexion
-        
-        
-        except sqlite3.OperationalError:    
+        except sqlite3.OperationalError:
             print("No se pudo conectar")
-            
-        #Metodo para insertar
-            
-            
-    def guardarUsuario(self, nom, cor, con):
-        #1. Llamar a la conexión
-        conx= self.conexionBD()
+    
+    def guardar_usuario(self, nom, correo, contra):
         
-        #2. Revisar parametros vacíos
+        conx= self.ConexionBD()
         
-        if(nom == "" or cor == "" or con == ""):
-            messagebox.showwarning("Revisa tu Formulario")
+        if (nom== "" or correo== "" or contra== ""):
+            messagebox.showwarning("Cuidado", "Revisa el formulario")
             conx.close()
-        else: 
-            #3. Prepara datos y el querySQL
-            cursor= conx.cursor() 
-            conH= self.encriptarCon(con)  
-            datos=(nom, cor, conH) 
-            qrInsert="insert into TBRegistrados(nombre, correo, contra) values(?,?,?)"
+        else:
+            cursor=conx.cursor()
+            conH= self.encriptarCon(contra)
+            datos=(nom, correo, conH)
+            qrInsert="Insert into TABLA(Nombre,Correo,Contraseña) values(?,?,?)"
             
-            #4. Proceder a insertar y cerramos la Conx
             cursor.execute(qrInsert, datos)
             conx.commit()
+            messagebox.showinfo("Exito", "Se ha guardado el usuario")
             conx.close()
-            messagebox.showinfo("Exito", "Se guardo el Usuario") 
-            
-
-   def encriptarCon(self, con):
-       conPlana= con
-       conPlana= conPlana.encode() #Convertimos con a bytes
-       sal= bcrypt.gensalt()
-       conHa= bcrypt.hashpw(conPlana, sal) #Contraseña encriptada
-       print(conHa)
-       return conHa
+    
+    def encriptarCon(self,contra):
+        contraPlana= contra
+        contraPlana= contraPlana.encode() #Convertir contra a bytes
+        sal= bcrypt.gensalt()
+        contraHa= bcrypt.hashpw(contraPlana, sal)
+        print(contraHa)
+        return contraHa
+    
+    def consultarUsuario(self, id):
+        #1.- Preparar la conexión
+        conx= self.ConexionBD()
+        
+        #2.- Verificar que el ID no esté vacio
+        if(id==""):
+            messagebox.showwarning("Cuidado Usuario", "ID vacio, escribe uno válido")
+            conx.close()
+        else:
+            #3.- Proceder a buscar
+            try:
+                #4.- Preparar lo necesario para el select
+                cursor= conx.cursor()
+                sqlSelect= "select * from TABLA where id="+id
                 
+                #5.- Ejecución y guardado de la consulta
+                cursor.execute(sqlSelect)
+                RSusuario= cursor.fetchall()
+                conx.close()
+                
+                return RSusuario
+            
+            except sqlite3.OperationalError:
+                print("Error de consulta")
+    
+    def consultar_usuarios(self):
+        conx = self.ConexionBD()
+        cursor = conx.cursor()
+        sql= "SELECT * FROM TABLA"
+        cursor.execute(sql)
+        usuarios = cursor.fetchall()
+        conx.close()
+        return usuarios
             
